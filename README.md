@@ -12,6 +12,6 @@ A simple and effective bug tracking system to help development teams manage and 
 
 ## 🛠 Tech Stack
 
-- **Frontend:** React / Vue / Angular (choose one)
-- **Backend:** Node.js + Express / Django / Flask
-- **Database:** MongoDB / PostgreSQL / MySQL
+- **Frontend:** React
+- **Backend:** Java Springboot
+- **Database:**  MySQL
