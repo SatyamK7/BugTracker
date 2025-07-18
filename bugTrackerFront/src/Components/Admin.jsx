@@ -14,6 +14,7 @@ export default function Admin() {
       const { data } = await axios.get(
         "http://localhost:8080/api/projects"
       );
+      setProjects()
       setProjects(data);
     } catch (err) {
       console.error("Error fetching projects:", err);
@@ -60,29 +61,38 @@ const removeProject = async (id, e) => {
     }
   };
 
-  const deleteUser = async (id) => {
-    await axios.delete('http://localhost:8080/api/users/{id}')
-  }
+ 
 
     /* ───────────────────────────────────────────────────────
      Add a users
   ────────────────────────────────────────────────────────*/
   
   const [userPayload ,setUserPayload] = useState ({
-    username:"",
+    name:'',
     email:'',
-    password:''
+    password:'',
+    role:''
   })
 
   const addUser = async () => {
     try {
       await axios.post('http://localhost:8080/api/users', userPayload);
-      setUserPayload({ username: '', email: '', password: '' }); // Clear form
+      setUserPayload({ name: '', email: '', password: '' }); // Clear form
       handleUsers(); // Refresh users list
     } catch (err) {
       console.error('Error adding user:', err);
     }
   };
+
+  const deleteUsers = async (id) => {
+  try {
+    await axios.delete(`http://localhost:8080/api/users/${id}`);
+    handleUsers(); // Refresh users list
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    
+  }
+};
 
   
     /* ───────────────────────────────────────────────────────
@@ -99,6 +109,7 @@ const addProject = async () => {
   handleProject();
   // setProjects(); // Removed to prevent projects from being set to undefined
 }
+
 
   /* ───────────────────────────────────────────────────────
      JSX
@@ -254,6 +265,14 @@ const addProject = async () => {
                         Edit
                       </button>
                     </td>
+                    <td>
+                      <button
+                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                        onClick={() => deleteUsers(u.id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -263,15 +282,14 @@ const addProject = async () => {
           {/* Add User form only visible when users are loaded, below the table */}
           <div className="mt-8 max-w-md mx-auto bg-white rounded-lg shadow-lg p-8 text-gray-800">
             <h2 className="text-xl font-semibold mb-6 text-center">Add User</h2>
-            <form onSubmit={e => { e.preventDefault(); addUser(); }} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="username">Username</label>
+                <label className="block text-sm font-medium mb-1">Username</label>
                 <input
                   
                   type="text"
                   placeholder="Enter username"
-                  value={userPayload.username}
-                  onChange={e => setUserPayload(prev => ({ ...prev,username:e.target.value }))}
+                  value={userPayload.name}
+                  onChange={e => setUserPayload(prev => ({ ...prev, name: e.target.value }))}
                   className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                   required
                 />
@@ -291,7 +309,7 @@ const addProject = async () => {
               <div>
                 <label className="block text-sm font-medium mb-1" htmlFor="password">Password</label>
                 <input
-                  id="password"
+                  
                   type="password"
                   placeholder="Password"
                   value={userPayload.password}
@@ -300,15 +318,35 @@ const addProject = async () => {
                   required
                 />
               </div>
+              
+              <div className="mb-4">
+                  <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+                    Select the role
+                  </label>
+                  <select
+                    id="role"
+                    name="role"
+                    value={userPayload.role}
+                    onChange={e => setUserPayload(prev => ({ ...prev, role: e.target.value }))}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 bg-white"
+                  >
+                    <option value="">Select Role</option>
+                    <option value="DEVELOPER">Developer</option>
+                    <option value="TESTER">Tester</option>
+                    <option value="ADMIN">Admin</option>
+                  </select>
+                </div>
+
+
+              
               <div className="pt-2">
                 <button
-                  type="submit"
+                  onClick={addUser}
                   className="w-full bg-blue-500 text-white font-semibold py-2 rounded hover:bg-blue-600 transition"
                 >
                   Add User
                 </button>
               </div>
-            </form>
           </div>
         </>
       )}
