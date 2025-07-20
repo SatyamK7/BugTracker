@@ -11,6 +11,7 @@ import Admin from './Components/Admin.jsx';
 import Login from './Components/Login.jsx';
 import Manager from './Components/Manager.jsx';
 import Project from './Components/Project.jsx';
+import Bug from './Components/Bug.jsx';
 
 
 
@@ -29,6 +30,7 @@ const router = createBrowserRouter(
       <Route path='/manager' element={<Manager />} />
       <Route path='/adminProjects' elements={<Manager/>}/>
       <Route path='/projects/:id' element={<Project />}/>
+      <Route path='/projects/:id/bugs/:bugId' element={<Bug />}/>
     </>
   )
 );

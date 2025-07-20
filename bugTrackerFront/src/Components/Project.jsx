@@ -47,14 +47,16 @@ function Project() {
           <tbody>
             {project.bugs && project.bugs.length > 0 ? (
               project.bugs.map((bug) => (
-                <tr key={bug.id} className="border-t border-gray-200 hover:bg-gray-100">
+                <tr 
+                
+                key={bug.id} className="border-t border-gray-200 hover:bg-gray-100">
                   <td className="px-6 py-4">{bug.id}</td>
                   <td className="px-6 py-4">
-                    <Link to={`/bugs/${bug.id}`} className="text-blue-600 hover:underline">
+                    <Link to={`/projects/${id}/bugs/${bug.id}`} className="text-blue-600 hover:underline">
                       {bug.title}
                     </Link>
                   </td>
-                  <td className="px-6 py-4">{bug.description}</td>
+                  <td  className="px-6 py-4">{bug.description}</td>
                   <td className="px-6 py-4">{bug.status}</td>
                   <td className="px-6 py-4">{bug.assignedTo ? bug.assignedTo.name : "-"}</td>
                 </tr>
