@@ -12,6 +12,7 @@ import Login from './Components/Login.jsx';
 import Manager from './Components/Manager.jsx';
 import Project from './Components/Project.jsx';
 import Bug from './Components/Bug.jsx';
+  import BugForm from './Components/BugForm.jsx';
 
 
 
@@ -31,6 +32,7 @@ const router = createBrowserRouter(
       <Route path='/adminProjects' elements={<Manager/>}/>
       <Route path='/projects/:id' element={<Project />}/>
       <Route path='/projects/:id/bugs/:bugId' element={<Bug />}/>
+      <Route path='/projects/:id/bugs/new' element={<BugForm />} />
     </>
   )
 );
