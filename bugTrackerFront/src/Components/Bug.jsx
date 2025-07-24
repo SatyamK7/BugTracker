@@ -48,7 +48,7 @@ function Bug() {
         <span>Status:</span>
         <select
           value={status}
-          onChange={handleStatusChange}
+          onChange={(e) => handleStatusChange(e)}
           className="px-2 py-1 rounded border border-gray-300 text-black"
         >
           <option value="OPEN">OPEN</option>

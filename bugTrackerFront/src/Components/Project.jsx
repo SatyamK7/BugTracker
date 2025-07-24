@@ -7,6 +7,7 @@ function Project() {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const index = 0;// Added index state for bug ID tracking
 
   const navigate = useNavigate();
 
@@ -15,6 +16,7 @@ function Project() {
       try {
         const { data } = await axios.get(`http://localhost:8080/api/projects/${id}`);
         setProject(data);
+        
       } catch (err) {
         setError("Failed to load project");
       } finally {
@@ -41,9 +43,10 @@ function Project() {
   if (!project) return null;
 
   return (
-    <div className="p-8 text-white">
+    <div className="p-8 text-black">
       <h1 className="text-2xl text-black font-bold mb-4">Project: {project.name}</h1>
       <p className="mb-2">ID: {project.id}</p>
+      <p className="mb-6">Description: {project.description}</p>
 
       <h2 className="text-xl font-semibold mb-2">Bugs</h2>
       <div className="overflow-x-auto">
@@ -59,9 +62,9 @@ function Project() {
           </thead>
           <tbody>
             {project.bugs && project.bugs.length > 0 ? (
-              project.bugs.map((bug) => (
+              project.bugs.map((bug, index) => (
                 <tr key={bug.id} className="border-t border-gray-200 hover:bg-gray-100">
-                  <td className="px-6 py-4">{bug.id}</td>
+                  <td className="px-6 py-4">{index + 1}</td>
                   <td className="px-6 py-4">
                     <Link to={`/projects/${id}/bugs/${bug.id}`} className="text-blue-600 hover:underline">
                       {bug.title}
