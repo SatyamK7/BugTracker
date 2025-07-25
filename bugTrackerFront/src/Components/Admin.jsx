@@ -334,6 +334,7 @@ const addProject = async () => {
                     <option value="DEVELOPER">Developer</option>
                     <option value="TESTER">Tester</option>
                     <option value="ADMIN">Admin</option>
+                    <option value="MANAGER">Manager</option>
                   </select>
                 </div>
 

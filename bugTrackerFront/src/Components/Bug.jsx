@@ -58,11 +58,12 @@ function Bug() {
         </select>
       </div>
       {bug.screenshotPath && (
-        <div className="mb-6 w-full flex justify-center h-100">
+        <div className="mb-6 w-80% flex justify-center h-100">
           <img
+            className="max-w-full h-auto rounded shadow"
             src={`http://localhost:8080/${bug.screenshotPath}`}
             alt={bug.title}
-            className="max-w-xs rounded shadow"
+            
           />
         </div>
       )}
