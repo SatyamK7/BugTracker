@@ -14,6 +14,7 @@ function Bug() {
       try {
         const { data } = await axios.get(`http://localhost:8080/api/bugs/${bugId}`);
         setBug(data);
+        console.log(data);
         setStatus(data.status);
       } catch (err) {
         setError("Failed to load bug");
@@ -61,9 +62,8 @@ function Bug() {
         <div className="mb-6 w-80% flex justify-center h-100">
           <img
             className="max-w-full h-auto rounded shadow"
-            src={`http://localhost:8080/${bug.screenshotPath}`}
+            src={`http://localhost:8080${bug.screenshotPath}`}
             alt={bug.title}
-            
           />
         </div>
       )}

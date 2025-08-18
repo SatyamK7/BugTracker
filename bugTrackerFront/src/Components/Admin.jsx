@@ -4,7 +4,9 @@ import { Link } from "react-router-dom";
 
 export default function Admin() {
   const [projects, setProjects] = useState([]);
+  const [projectsLoaded, setProjectsLoaded] = useState(false); // NEW: track if loaded
   const [users, setUsers] = useState([]);
+  const [usersLoaded, setUsersLoaded] = useState(false);
 
   /* ───────────────────────────────────────────────────────
      Fetch all projects
@@ -14,40 +16,32 @@ export default function Admin() {
       const { data } = await axios.get(
         "http://localhost:8080/api/projects"
       );
-      setProjects()
       setProjects(data);
+      setProjectsLoaded(true); // Mark as loaded
     } catch (err) {
       console.error("Error fetching projects:", err);
+      setProjectsLoaded(true); // Even on error, mark as loaded
     }
   };
 
   /* ───────────────────────────────────────────────────────
      Delete a single project by id  ❗ pass id from button
   ────────────────────────────────────────────────────────*/
-/* DELETE handler ─ now optimistic */
-const removeProject = async (id, e) => {
-  // keep <Link> from firing
-  if (e) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-
-  // 1️⃣  optimistic UI update
-  setProjects(prev => prev.filter(p => p.id !== id));
-
-  try {
-    // 2️⃣  call backend
-    await axios.delete(
-      `http://localhost:8080/api/projects/deleteProject/${id}`
-    );
-  } catch (err) {
-    console.error("Error deleting project:", err);
-    // 3️⃣  rollback if server fails (simplest: refetch list)
-    handleProject();
-  }
-};
-
-
+  const removeProject = async (id, e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setProjects(prev => prev.filter(p => p.id !== id));
+    try {
+      await axios.delete(
+        `http://localhost:8080/api/projects/deleteProject/${id}`
+      );
+    } catch (err) {
+      console.error("Error deleting project:", err);
+      handleProject();
+    }
+  };
 
   /* ───────────────────────────────────────────────────────
      Fetch all users
@@ -56,60 +50,55 @@ const removeProject = async (id, e) => {
     try {
       const { data } = await axios.get("http://localhost:8080/api/users");
       setUsers(data);
+      setUsersLoaded(true);
     } catch (err) {
       console.error("Error fetching users:", err);
+      setUsersLoaded(true);
     }
   };
 
- 
-
-    /* ───────────────────────────────────────────────────────
+  /* ───────────────────────────────────────────────────────
      Add a users
   ────────────────────────────────────────────────────────*/
-  
-  const [userPayload ,setUserPayload] = useState ({
-    name:'',
-    email:'',
-    password:'',
-    role:''
-  })
+  const [userPayload, setUserPayload] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: ''
+  });
 
   const addUser = async () => {
     try {
       await axios.post('http://localhost:8080/api/users', userPayload);
-      setUserPayload({ name: '', email: '', password: '' }); // Clear form
-      handleUsers(); // Refresh users list
+      setUserPayload({ name: '', email: '', password: '' });
+      handleUsers();
     } catch (err) {
       console.error('Error adding user:', err);
     }
   };
 
   const deleteUsers = async (id) => {
-  try {
-    await axios.delete(`http://localhost:8080/api/users/${id}`);
-    handleUsers(); // Refresh users list
-  } catch (error) {
-    console.error("Error deleting user:", error);
-    
-  }
-};
+    try {
+      await axios.delete(`http://localhost:8080/api/users/${id}`);
+      handleUsers();
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    }
+  };
 
-  
-    /* ───────────────────────────────────────────────────────
+  /* ───────────────────────────────────────────────────────
      Add a project
   ────────────────────────────────────────────────────────*/
-  const [projectPayload,setProjectPayload] = useState({
-    name:'',
+  const [projectPayload, setProjectPayload] = useState({
+    name: '',
     description: ''
+  });
 
-  })
-const addProject = async () => {
-  await axios.post('http://localhost:8080/api/projects', projectPayload);
-  setProjectPayload({ description: '', name: '' });
-  handleProject();
-  // setProjects(); // Removed to prevent projects from being set to undefined
-}
-
+  const addProject = async () => {
+    await axios.post('http://localhost:8080/api/projects', projectPayload);
+    setProjectPayload({ description: '', name: '' });
+    handleProject();
+  };
 
   /* ───────────────────────────────────────────────────────
      JSX
@@ -126,12 +115,10 @@ const addProject = async () => {
         >
           Load Projects
         </button>
-
-        
       </div>
 
-      {/* ─── Projects table ─────────────────────────────── */}
-      {projects.length > 0 && (
+      {/* Show projects table only if loaded and projects exist */}
+      {projectsLoaded && projects.length > 0 && (
         <div className="overflow-x-auto mb-12">
           <table className="min-w-full bg-white text-gray-800 rounded-md overflow-hidden">
             <thead className="bg-gray-200">
@@ -146,14 +133,12 @@ const addProject = async () => {
                 </th>
               </tr>
             </thead>
-
             <tbody>
               {projects.map((project) => (
                 <tr
                   key={project.id}
                   className="border-t border-gray-200 hover:bg-gray-100"
                 >
-                  {/* full‑row link to detail page */}
                   <td className="px-6 py-4">
                     <Link to={`/projects/${project.id}`}>{project.id}</Link>
                   </td>
@@ -163,8 +148,6 @@ const addProject = async () => {
                   <td className="px-6 py-4">
                     <Link to={`/projects/${project.id}`}>{project.description}</Link>
                   </td>
-
-                  {/* delete button */}
                   <td className="px-6 py-4">
                     <button
                       className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
@@ -177,179 +160,165 @@ const addProject = async () => {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
 
-          <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-xl shadow-md">
-  <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Add Project</h2>
-
-  
-
-  {/* Name Field */}
-  <div className="mb-6">
-    <label className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
-    <input
-      type="text"
-      placeholder="Enter project name"
-      value={projectPayload.name}
-      onChange={e =>
-        setProjectPayload(prev => ({ ...prev, name: e.target.value }))
-      }
-      className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-    />
-  </div>
-
-  {/* Description Field */}
-  <div className="mb-4">
-    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-    <input
-      type="text"
-      placeholder="Enter description"
-      value={projectPayload.description}
-      onChange={e =>
-        setProjectPayload(prev => ({ ...prev, description: e.target.value }))
-      }
-      className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-    />
-  </div>
-
-  {/* Add Button */}
-  <div className="text-center">
-    <button
-      className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
-      onClick={addProject} // Make sure this function exists
-    >
-      Add
-    </button>
-  </div>
-</div>
-
+      {/* Show add project form only after loading projects */}
+      {projectsLoaded && (
+        <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-xl shadow-md">
+          <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Add Project</h2>
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
+            <input
+              type="text"
+              placeholder="Enter project name"
+              value={projectPayload.name}
+              onChange={e =>
+                setProjectPayload(prev => ({ ...prev, name: e.target.value }))
+              }
+              className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <input
+              type="text"
+              placeholder="Enter description"
+              value={projectPayload.description}
+              onChange={e =>
+                setProjectPayload(prev => ({ ...prev, description: e.target.value }))
+              }
+              className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="text-center">
+            <button
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+              onClick={addProject}
+            >
+              Add
+            </button>
+          </div>
         </div>
       )}
 
       <button
-          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition"
-          onClick={handleUsers}
-        >
-          Load Users
-        </button>
+        className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition"
+        onClick={handleUsers}
+      >
+        Load Users
+      </button>
 
-      {/* ─── Users table ───────────────────────────────── */}
-      {users.length > 0 && (
-        <>
-          <div className="overflow-x-auto mt-4">
-            <table className="min-w-full bg-white text-gray-800 rounded-md overflow-hidden">
-              <thead className="bg-gray-200">
-                <tr>
-                  <th className="px-6 py-3 text-left text-sm font-semibold">ID</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold">Name</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold">Email</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold">Role</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold">Edit</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {users.map((u) => (
-                  <tr
-                    key={u.id}
-                    className="border-t border-gray-200 hover:bg-gray-100"
-                  >
-                    <td className="px-6 py-4">{u.id}</td>
-                    <td className="px-6 py-4">{u.name}</td>
-                    <td className="px-6 py-4">{u.email}</td>
-                    <td className="px-6 py-4">{u.role}</td>
-                    <td className="px-6 py-4">
-                      <button
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                        // onClick={editUsers}
-                      >
-                        Edit
-                      </button>
-                    </td>
-                    <td>
-                      <button
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                        onClick={() => deleteUsers(u.id)}
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Add User form only visible when users are loaded, below the table */}
-          <div className="mt-8 max-w-md mx-auto bg-white rounded-lg shadow-lg p-8 text-gray-800">
-            <h2 className="text-xl font-semibold mb-6 text-center">Add User</h2>
-              <div>
-                <label className="block text-sm font-medium mb-1">Username</label>
-                <input
-                  
-                  type="text"
-                  placeholder="Enter username"
-                  value={userPayload.name}
-                  onChange={e => setUserPayload(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="email">Email</label>
-                <input
-                  
-                  type="email"
-                  placeholder="user@example.com"
-                  value={userPayload.email}
-                  onChange={e => setUserPayload(prev => ({ ...prev, email: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="password">Password</label>
-                <input
-                  
-                  type="password"
-                  placeholder="Password"
-                  value={userPayload.password}
-                  onChange={e => setUserPayload(prev => ({ ...prev, password: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  required
-                />
-              </div>
-              
-              <div className="mb-4">
-                  <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
-                    Select the role
-                  </label>
-                  <select
-                    id="role"
-                    name="role"
-                    value={userPayload.role}
-                    onChange={e => setUserPayload(prev => ({ ...prev, role: e.target.value }))}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 bg-white"
-                  >
-                    <option value="">Select Role</option>
-                    <option value="DEVELOPER">Developer</option>
-                    <option value="TESTER">Tester</option>
-                    <option value="ADMIN">Admin</option>
-                    <option value="MANAGER">Manager</option>
-                  </select>
-                </div>
-
-
-              
-              <div className="pt-2">
-                <button
-                  onClick={addUser}
-                  className="w-full bg-blue-500 text-white font-semibold py-2 rounded hover:bg-blue-600 transition"
+      {/* Show users table only if loaded and users exist */}
+      {usersLoaded && users.length > 0 && (
+        <div className="overflow-x-auto mt-4">
+          <table className="min-w-full bg-white text-gray-800 rounded-md overflow-hidden">
+            <thead className="bg-gray-200">
+              <tr>
+                <th className="px-6 py-3 text-left text-sm font-semibold">ID</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold">Name</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold">Email</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold">Role</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold">Edit</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((u) => (
+                <tr
+                  key={u.id}
+                  className="border-t border-gray-200 hover:bg-gray-100"
                 >
-                  Add User
-                </button>
-              </div>
+                  <td className="px-6 py-4">{u.id}</td>
+                  <td className="px-6 py-4">{u.name}</td>
+                  <td className="px-6 py-4">{u.email}</td>
+                  <td className="px-6 py-4">{u.role}</td>
+                  <td className="px-6 py-4">
+                    <button
+                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                      // onClick={editUsers}
+                    >
+                      Edit
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                      onClick={() => deleteUsers(u.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Show add user form only after loading users */}
+      {usersLoaded && (
+        <div className="mt-8 max-w-md mx-auto bg-white rounded-lg shadow-lg p-8 text-gray-800">
+          <h2 className="text-xl font-semibold mb-6 text-center">Add User</h2>
+          <div>
+            <label className="block text-sm font-medium mb-1">Username</label>
+            <input
+              type="text"
+              placeholder="Enter username"
+              value={userPayload.name}
+              onChange={e => setUserPayload(prev => ({ ...prev, name: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
+            />
           </div>
-        </>
+          <div>
+            <label className="block text-sm font-medium mb-1" htmlFor="email">Email</label>
+            <input
+              type="email"
+              placeholder="user@example.com"
+              value={userPayload.email}
+              onChange={e => setUserPayload(prev => ({ ...prev, email: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1" htmlFor="password">Password</label>
+            <input
+              type="password"
+              placeholder="Password"
+              value={userPayload.password}
+              onChange={e => setUserPayload(prev => ({ ...prev, password: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+              Select the role
+            </label>
+            <select
+              id="role"
+              name="role"
+              value={userPayload.role}
+              onChange={e => setUserPayload(prev => ({ ...prev, role: e.target.value }))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 bg-white"
+            >
+              <option value="">Select Role</option>
+              <option value="DEVELOPER">Developer</option>
+              <option value="TESTER">Tester</option>
+              <option value="ADMIN">Admin</option>
+              <option value="MANAGER">Manager</option>
+            </select>
+          </div>
+          <div className="pt-2">
+            <button
+              onClick={addUser}
+              className="w-full bg-blue-500 text-white font-semibold py-2 rounded hover:bg-blue-600 transition"
+            >
+              Add User
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

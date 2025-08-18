@@ -1,6 +1,7 @@
 package com.satyam.bugTracker.controllers;
 
 import com.satyam.bugTracker.dtos.BugRequest;
+import com.satyam.bugTracker.enums.BugStatus;
 import com.satyam.bugTracker.models.Bug;
 import com.satyam.bugTracker.models.Project;
 import com.satyam.bugTracker.models.User;
@@ -9,10 +10,13 @@ import com.satyam.bugTracker.repos.UserRepository;
 import com.satyam.bugTracker.service.BugService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -42,6 +46,11 @@ public class BugController {
         Bug bug = new Bug();
         bug.setTitle(req.title());
         bug.setDescription(req.description());
+        if (req.screenshotPath() != null && !req.screenshotPath().isBlank()) {
+            bug.setScreenshotPath("/uploads/" + req.screenshotPath());
+        } else {
+            bug.setScreenshotPath(null); // or a default placeholder path
+        }
         bug.setStatus(req.status());
         bug.setReporter(reporter);
         bug.setAssignedTo(assignee);
@@ -58,4 +67,22 @@ public class BugController {
     public ResponseEntity<Bug> getBug(@PathVariable Long id) {
         return ResponseEntity.ok(bugService.getBugById(id));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Bug> deleteBug(@PathVariable Long id) {
+        return ResponseEntity.ok(bugService.deleteById(id));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Bug> updateBugStatus(@PathVariable Long id, @RequestBody Map<String, String> updates) {
+        Bug bug = bugService.getBugById(id);
+//
+        if (updates.containsKey("status")) {
+            bug.setStatus(BugStatus.valueOf(updates.get("status")));
+        }
+
+        Bug updatedBug = bugService.updateBug(bug);
+        return ResponseEntity.ok(updatedBug);
+    }
+
 }

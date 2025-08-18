@@ -10,6 +10,7 @@ function BugForm() {
     description: "",
     status: "",
     image: null,
+    screenshotPath: "", // Add screenshotPath to state
     reporterId: "",
     assignedToId: "",
   });
@@ -28,7 +29,12 @@ function BugForm() {
   const handleChange = (e) => {
     const { id, value, files } = e.target;
     if (id === "image") {
-      setForm(f => ({ ...f, image: files[0] }));
+      const file = files[0];
+      setForm(f => ({
+        ...f,
+        image: file,
+        screenshotPath: file ? file.name : "" // Set screenshotPath from file name
+      }));
     } else {
       setForm(f => ({ ...f, [id]: value }));
     }
@@ -37,17 +43,11 @@ function BugForm() {
   const addBug = async (e) => {
     e.preventDefault();
 
-    // Only extract the file name if an image is selected
-    let screenshotPath = "";
-    if (form.image) {
-      screenshotPath = form.image.name;
-    }
-
     const payload = {
       title: form.title,
       description: form.description,
       status: form.status,
-      screenshotPath: screenshotPath,
+      screenshotPath: form.screenshotPath, // Always send screenshotPath
       reporterId: form.reporterId,
       assignedToId: form.assignedToId,
       projectId: projectId,
@@ -134,6 +134,9 @@ function BugForm() {
                 />
                 {form.image && (
                   <div className="text-xs text-gray-500 mt-1">Selected: {form.image.name}</div>
+                )}
+                {form.screenshotPath && (
+                  <div className="text-xs text-green-600 mt-1">Screenshot Path: {form.screenshotPath}</div>
                 )}
               </div>
             </div>
