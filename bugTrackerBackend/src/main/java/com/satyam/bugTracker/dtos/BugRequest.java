@@ -5,6 +5,7 @@ import com.satyam.bugTracker.enums.BugStatus;
 public record BugRequest(
         String title,
         String description,
+        String screenshotPath,
         BugStatus status,
         Long reporterId,
         Long assignedToId,

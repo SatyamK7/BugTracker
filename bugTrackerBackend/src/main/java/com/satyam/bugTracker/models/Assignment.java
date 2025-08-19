@@ -2,6 +2,7 @@ package com.satyam.bugTracker.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import java.time.LocalDateTime;
 
@@ -18,6 +19,7 @@ public class Assignment {
     @ManyToOne
 //    @JoinColumn
     @JoinColumn(name = "bug_Id_assign")
+    @JsonBackReference
     private Bug bug;
 
     @ManyToOne

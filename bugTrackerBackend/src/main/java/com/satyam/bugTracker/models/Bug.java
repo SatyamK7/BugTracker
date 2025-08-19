@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Data
@@ -27,19 +28,16 @@ public class Bug {
     @ManyToOne
     @JoinColumn(name = "reporter_id")
     private User reporter;
-//    private Long reporter;
 
     @ManyToOne
     @JoinColumn(name = "assignedId")
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private User assignedTo;
-//    private Long assignedTo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     @JsonBackReference
     private Project project;
-//    private Long project;
 
 
 }

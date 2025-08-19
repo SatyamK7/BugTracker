@@ -27,6 +27,10 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.getAllProjects());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Project> getProjectById(@PathVariable Long id) {
+        return ResponseEntity.ok(projectService.getProjectById(id));
+    }
     @DeleteMapping("/deleteProject/{id}")
     public Optional<Project> deleteProject(@PathVariable Long id) {
         return projectService.deleteById(id);

@@ -10,14 +10,11 @@ import com.satyam.bugTracker.repos.UserRepository;
 import com.satyam.bugTracker.service.BugService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/bugs")
@@ -70,7 +67,8 @@ public class BugController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Bug> deleteBug(@PathVariable Long id) {
-        return ResponseEntity.ok(bugService.deleteById(id));
+        bugService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}")

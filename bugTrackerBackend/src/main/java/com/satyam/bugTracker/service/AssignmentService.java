@@ -9,7 +9,6 @@ import com.satyam.bugTracker.models.Assignment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -22,14 +21,13 @@ public class AssignmentService {
 
     public Assignment assignBug(Long bugId, Long userId) {
         Bug bug = bugRepository.findById(bugId)
-                .orElseThrow(() -> new RuntimeException("Bug not found"));
+                .orElseThrow(() -> new RuntimeException("Bug not found with id: " + bugId));
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
         Assignment assignment = new Assignment();
         assignment.setBug(bug);
         assignment.setAssignee(user);
-        assignment.setAssignedAt(LocalDateTime.now());
 
         return assignmentRepository.save(assignment);
     }

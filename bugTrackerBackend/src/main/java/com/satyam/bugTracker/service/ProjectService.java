@@ -3,6 +3,7 @@ package com.satyam.bugTracker.service;
 import com.satyam.bugTracker.models.Project;
 import com.satyam.bugTracker.repos.ProjectRepository;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,5 +27,10 @@ public class ProjectService {
        Optional<Project> p = projectRepository.findById(id);
         projectRepository.deleteById(id);
         return p;
+    }
+
+    public Project getProjectById(Long id) {
+        return projectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
     }
 }
