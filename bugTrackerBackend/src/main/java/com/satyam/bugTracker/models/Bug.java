@@ -6,7 +6,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import java.util.List;
 
 @Entity
 @Data
@@ -39,5 +40,7 @@ public class Bug {
     @JsonBackReference
     private Project project;
 
-
+    @OneToMany(mappedBy = "bug", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Assignment> assignments;
 }

@@ -32,13 +32,13 @@ public class BugController {
 
     @PostMapping
     public ResponseEntity<Bug> reportBug(@RequestBody BugRequest req) {
-        User reporter   = userRepository.getReferenceById(req.reporterId());   // or findById + orElseThrow
-        User assignee   = userRepository.getReferenceById(req.assignedToId());
-        Project project = projectRepository.getReferenceById(req.projectId());
+        // User reporter   = userRepository.getReferenceById(req.reporterId());   // or findById + orElseThrow
+        // User assignee   = userRepository.getReferenceById(req.assignedToId());
+        // Project project = projectRepository.getReferenceById(req.projectId());
 
-//        User reporter = userRepository.findById(req.reporterId()).orElse(null);
-//        User assignee = userRepository.findById(req.assignedToId()).orElse(null);
-//        Project project = projectRepository.findById(req.projectId()).orElse(null);
+       User reporter = userRepository.findById(req.reporterId()).orElse(null);
+       User assignee = userRepository.findById(req.assignedToId()).orElse(null);
+       Project project = projectRepository.findById(req.projectId()).orElse(null);
 
         Bug bug = new Bug();
         bug.setTitle(req.title());
